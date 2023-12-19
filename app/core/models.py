@@ -78,7 +78,7 @@ class Task(models.Model):
         on_delete=models.CASCADE,
     )
     project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE)
-    sub_project = models.ForeignKey(SubProject, default=None, blank=True, on_delete=models.CASCADE)
+    sub_project = models.ForeignKey(SubProject, default=None, blank=True, null=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     note = models.TextField(blank=True)
 
