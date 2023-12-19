@@ -63,7 +63,7 @@ class SubProject(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, default=None, related_name='sub_projects', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
