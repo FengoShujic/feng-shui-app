@@ -11,7 +11,7 @@ from projects import serializers
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """View for manage Project API"""
-    serializer_class = serializers.ProjectSerializer
+    serializer_class = serializers.ProjectDetailSerializer
     queryset = Project.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -19,3 +19,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Retrive Projects for authenticated user"""
         return self.queryset.filter(user=self.request.user).order_by('-id')
+
+
+    def get_serializer_class(self):
+        """Return serializer class for request"""
+        if self.action == 'list':
+            return serializers.ProjectSerializer
+
+        return self.serializer_class
+
+    
+    def perform_create(self, serializer):
+        """Create new Project"""
+        serializer.save(user=self.request.user)

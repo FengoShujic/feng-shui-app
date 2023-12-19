@@ -5,7 +5,7 @@ from . import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register('projects', views.ProjectViewSet)
+router.register('project', views.ProjectViewSet)
 app_name = 'projects'
 
 

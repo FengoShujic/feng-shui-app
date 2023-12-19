@@ -29,5 +29,4 @@ urlpatterns = [
     path('api/user/', include('user.urls')),
     path('api/projects/', include('projects.urls')),
     
-
 ]
