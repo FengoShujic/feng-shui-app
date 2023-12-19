@@ -36,7 +36,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class SubProjectViewSet(viewsets.ModelViewSet):
     """View for manage Project API"""
-    serializer_class = serializers.SubProjectDetailsSerializer
+    serializer_class = serializers.SubProjectDetailSerializer
     queryset = SubProject.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

@@ -1,6 +1,7 @@
 """ Serializers for Projects and SubProjects"""
 from rest_framework import serializers
 from core.models import Project, SubProject
+from tasks.serializers import TaskDetailSerializer
 
 
 class SubProjectSerializer(serializers.ModelSerializer):
@@ -9,9 +10,12 @@ class SubProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
         read_only_fields = ['id']
 
-class SubProjectDetailsSerializer(serializers.ModelSerializer):
+class SubProjectDetailSerializer(SubProjectSerializer):
+    tasks = TaskDetailSerializer(many=True, read_only=True, source='task_set')
+
     class Meta(SubProjectSerializer.Meta):
-        fields = SubProjectSerializer.Meta.fields + ['description', 'project']
+        fields = SubProjectSerializer.Meta.fields + ['description', 'project', 'tasks']
+
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -23,11 +27,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectDetailSerializer(ProjectSerializer):
-    """Serializer for Project Detail view"""
-    
-    sub_projects = SubProjectDetailsSerializer(many=True)
+    sub_projects = SubProjectDetailSerializer(many=True)
+    tasks = TaskDetailSerializer(many=True, read_only=True, source='task_set')
 
     class Meta(ProjectSerializer.Meta):
-        fields = ProjectSerializer.Meta.fields + ['description', 'sub_projects']
+        fields = ProjectSerializer.Meta.fields + ['description', 'sub_projects', 'tasks']
+
 
 

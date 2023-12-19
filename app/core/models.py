@@ -77,8 +77,8 @@ class Task(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE)
-    sub_project = models.ForeignKey(SubProject, default=None, blank=True, null=True, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, default=None, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
+    sub_project = models.ForeignKey(SubProject, default=None, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
     title = models.CharField(max_length=255)
     note = models.TextField(blank=True)
 
