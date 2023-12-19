@@ -42,4 +42,7 @@ class UserAdmin(BaseUserAdmin):
     )
 
 admin.site.register(models.User, UserAdmin)
-
+admin.site.register(models.Project)
+admin.site.register(models.SubProject)
+admin.site.register(models.Task)
+admin.site.register(models.SubTask)

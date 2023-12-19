@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-
+from core import models
 
 class ModelTests(TestCase):
     """Test models."""
@@ -44,3 +44,18 @@ class ModelTests(TestCase):
 
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+
+    def test_create_project(self):
+        """Creating project successful"""
+        user = get_user_model().objects.create_user(
+            "test@example.com",
+            "testpass123",
+        )
+        project = models.Project.objects.create(
+            user=user,
+            title="Test Project",
+            description = "Test Project Description"
+        )
+
+        self.assertEqual(str(project), project.title)

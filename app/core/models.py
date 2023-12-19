@@ -58,7 +58,7 @@ class Project(models.Model):
 
 
 class SubProject(models.Model):
-    """Project db"""
+    """SubProject db"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -66,6 +66,35 @@ class SubProject(models.Model):
     project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Task(models.Model):
+    """Tasks db"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    project = models.ForeignKey(Project, default=None, on_delete=models.CASCADE)
+    sub_project = models.ForeignKey(SubProject, default=None, blank=True, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    note = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+class SubTask(models.Model):
+    """Tasks db"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    parent = models.ForeignKey(Task, default=None, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    note = models.TextField(blank=True)
 
     def __str__(self):
         return self.title
