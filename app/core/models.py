@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
@@ -81,6 +82,8 @@ class Task(models.Model):
     sub_project = models.ForeignKey(SubProject, default=None, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
     title = models.CharField(max_length=255)
     note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -92,9 +95,11 @@ class SubTask(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    parent = models.ForeignKey(Task, default=None, on_delete=models.CASCADE)
+    parent_task = models.ForeignKey(Task, default=None, on_delete=models.CASCADE, related_name='sub_tasks')
     title = models.CharField(max_length=255)
     note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
