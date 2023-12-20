@@ -45,6 +45,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
 
+class Tag(models.Model):
+    """Tasks db"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
 class Project(models.Model):
     """Project db"""
     user = models.ForeignKey(
@@ -84,6 +96,7 @@ class Task(models.Model):
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tags = models.ManyToManyField(Tag)
 
     def __str__(self):
         return self.title
@@ -100,6 +113,9 @@ class SubTask(models.Model):
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tags = models.ManyToManyField(Tag)
 
     def __str__(self):
         return self.title
+
+

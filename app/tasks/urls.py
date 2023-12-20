@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('task', views.TaskViewSet)
 router.register('subtask', views.SubTaskViewSet)
+router.register('tag', views.TagViewSet)
 
 app_name = 'tasks'
 
