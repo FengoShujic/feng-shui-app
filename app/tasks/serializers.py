@@ -18,15 +18,17 @@ class SubTaskSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'tags']
         read_only = ['id']
 
-    def _get_or_create_tags(self, tags, sub_task):
-        """Geting or creating tags handler"""
+    
+    def _get_or_create_tags(self, tags, instance):
+        """Getting or creating tags handler"""
         auth_user = self.context['request'].user
         for tag in tags:
             tag_obj, created = Tag.objects.get_or_create(
                 user=auth_user,
                 **tag,
             )
-            sub_task.tag.add(tag_obj)
+            instance.tags.add(tag_obj)
+
 
     def create(self, validated_data):
         """Create SubTask"""
@@ -72,7 +74,7 @@ class TaskSerializer(serializers.ModelSerializer):
                 user=auth_user,
                 **tag,
             )
-            sub_task.tag.add(tag_obj)
+            sub_task.tags.add(tag_obj)
 
     def create(self, validated_data):
         """Create Task"""
@@ -102,3 +104,4 @@ class TaskDetailSerializer(TaskSerializer):
         fields = TaskSerializer.Meta.fields + ['note', 'project', 'sub_project', 'created_at', 'updated_at', 'sub_tasks']
 
 
+# Token c9a9ebe61342313f08f1ba3fb8caceb8ea0c9490
