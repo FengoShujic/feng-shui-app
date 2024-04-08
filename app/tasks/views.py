@@ -1,6 +1,7 @@
 """Views for Tasks"""
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 # Create your views here.
 from django.db.models import F
 from django.db import transaction
@@ -81,27 +82,32 @@ class TagViewSet(mixins.DestroyModelMixin,
         return self.queryset.filter(user=self.request.user).order_by('-name')
 
 
-class CommentCreateAPIView(APIView):
-    """View to create a comment for either Task or SubTask."""
+class CommentCreateAPIView(RetrieveAPIView):
+    """View to create and retrieve comments for either Task or SubTask."""
     serializer_class = serializers.CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, id, format=None):
-        # Determine whether we're dealing with a Task or SubTask based on the URL pattern
-        if 'subtasks' in request.path:
-            content_object = get_object_or_404(SubTask, id=id)
+    def get_object(self):
+        id = self.kwargs.get('id')
+        if 'subtasks' in self.request.path:
+            return get_object_or_404(SubTask, id=id)
         else:
-            content_object = get_object_or_404(Task, id=id)
+            return get_object_or_404(Task, id=id)
 
-        # Create a Comment instance
+    def get(self, request, *args, **kwargs):
+        content_object = self.get_object()
+        serializer = self.serializer_class(content_object.comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        content_object = self.get_object()
         serializer = self.serializer_class(data=request.data, context={
             'request': request,
             'content_object': content_object
         })
 
         if serializer.is_valid():
-            # Save the comment and relate it to the Task or SubTask
             serializer.save(
                 user=request.user,
                 content_type=ContentType.objects.get_for_model(content_object),
