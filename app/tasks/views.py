@@ -1,7 +1,7 @@
 """Views for Tasks"""
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
 # Create your views here.
 from django.db.models import F
 from django.db import transaction
@@ -116,3 +116,11 @@ class CommentCreateAPIView(RetrieveAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentDetailAPIView(RetrieveUpdateDestroyAPIView):
+    """View for retrieving, updating, and deleting a comment."""
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

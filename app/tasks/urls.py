@@ -19,4 +19,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('tasks/<int:id>/comments/', views.CommentCreateAPIView.as_view(), name='task-comments'),
     path('subtasks/<int:id>/comments/', views.CommentCreateAPIView.as_view(), name='subtask-comments'),
+    path('comments/<int:pk>/', views.CommentDetailAPIView.as_view(), name='comment-detail'),
 ]
