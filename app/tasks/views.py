@@ -65,34 +65,6 @@ class TaskViewSet(viewsets.ModelViewSet):
         """Create new Task"""
         serializer.save(user=self.request.user)
 
-    """
-    @action(detail=False, methods=['post'])
-    def set_positions(self, request):
-        with transaction.atomic():
-            tasks_data = request.data.get('tasks', [])
-            task_ids = [task['id'] for task in tasks_data]
-            tasks = Task.objects.filter(id__in=task_ids)
-            
-            # Ažurirajte pozicije za sve taskove
-            for task_data in tasks_data:
-                task = tasks.get(id=task_data['id'])
-                old_position = task.position
-                new_position = task_data['position']
-                
-                # Pomaknite taskove unazad ili unapred zavisno od promene pozicije
-                if old_position < new_position:
-                    # Task se pomera unazad, taskovi između se pomjeraju napred
-                    tasks.filter(position__gt=old_position, position__lte=new_position).update(position=F('position') - 1)
-                else:
-                    # Task se pomera napred, taskovi između se pomjeraju unazad
-                    tasks.filter(position__lt=old_position, position__gte=new_position).update(position=F('position') + 1)
-                
-                # Postavite novu poziciju za premješteni task
-                task.position = new_position
-                task.save()
-                
-            return Response({'status': 'positions updated successfully'})
-    """
 
 class TagViewSet(mixins.DestroyModelMixin,
                 mixins.UpdateModelMixin, 
