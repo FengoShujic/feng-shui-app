@@ -116,9 +116,13 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
+    position = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ['position']
 
 
 class SubTask(models.Model):

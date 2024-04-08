@@ -64,7 +64,19 @@ class TaskViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Create new Task"""
+        serializer.save(user=self.request.user, position=0)  # Postavljamo poziciju novog zadatka na 0
+        # Ažuriramo pozicije ostalih zadataka
+        Task.objects.exclude(id=serializer.instance.id).update(position=F('position') + 1)
         serializer.save(user=self.request.user)
+
+    
+    def perform_destroy(self, instance):
+        """Delete Task and adjust positions of other tasks"""
+        position = instance.position
+        instance.delete()
+
+        # Move tasks below the deleted task up by one position
+        Task.objects.filter(position__gt=position).update(position=F('position') - 1)
 
 
 class TagViewSet(mixins.DestroyModelMixin,
@@ -124,3 +136,6 @@ class CommentDetailAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+
+    # Token 42c2f3e6ea4bbb7c2dfeefdb55ba73173f6fd966
