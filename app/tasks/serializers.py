@@ -1,6 +1,25 @@
 """ Serializers for Tasks and SubTasks"""
 from rest_framework import serializers
-from core.models import Task, SubTask, Tag
+from core.models import Task, SubTask, Tag, Comment
+from django.contrib.contenttypes.models import ContentType
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'text', 'created_at', 'content_type', 'object_id']
+        read_only_fields = ('id', 'user', 'created_at', 'content_type', 'object_id')
+    
+    def create(self, validated_data):
+        content_object = self.context.get('content_object')
+        # Create a new comment instance
+        comment = Comment.objects.create(
+            user=self.context['request'].user,
+            text=validated_data['text'],
+            content_type=ContentType.objects.get_for_model(content_object),
+            object_id=content_object.pk
+        )
+        return comment
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -54,8 +73,9 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
 class SubTaskDetailSerializer(SubTaskSerializer):
     """Subtask Detail view"""
+    comments = CommentSerializer(many=True, read_only=True)
     class Meta(SubTaskSerializer.Meta):
-        fields = SubTaskSerializer.Meta.fields + ['note', 'parent_task', 'created_at', 'updated_at']
+        fields = SubTaskSerializer.Meta.fields + ['note', 'parent_task', 'created_at', 'updated_at', 'comments']
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -99,9 +119,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class TaskDetailSerializer(TaskSerializer):
     sub_tasks = SubTaskDetailSerializer(many=True, read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta(TaskSerializer.Meta):
-        fields = TaskSerializer.Meta.fields + ['note', 'project', 'sub_project', 'created_at', 'updated_at', 'sub_tasks']
+        fields = TaskSerializer.Meta.fields + ['note', 'project', 'sub_project', 'created_at', 'updated_at', 'sub_tasks', 'comments']
 
 
-# Token c9a9ebe61342313f08f1ba3fb8caceb8ea0c9490
+
