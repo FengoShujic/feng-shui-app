@@ -34,7 +34,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, required=False)
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'tags']
+        fields = ['id', 'title', 'tags', 'end_date']
         read_only = ['id']
 
     
@@ -83,7 +83,7 @@ class TaskSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, required=False)
     class Meta:
         model = Task
-        fields = ['id', 'title', 'tags', 'position']
+        fields = ['id', 'title', 'tags', 'position', 'end_date']
         read_only = ['id']
 
     def _get_or_create_tags(self, tags, sub_task):
