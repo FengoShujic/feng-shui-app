@@ -117,6 +117,7 @@ class Task(models.Model):
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
     position = models.PositiveIntegerField(default=0)
+    end_date = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -138,6 +139,7 @@ class SubTask(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
+    end_date = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.title
