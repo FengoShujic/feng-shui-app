@@ -117,7 +117,9 @@ class Task(models.Model):
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
     position = models.BigIntegerField(blank=True, null=True)
-    end_date = models.CharField(max_length=50, blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+    urgent = models.BooleanField(default=False, blank=True, null=True)  
+    important = models.BooleanField(default=False, blank=True, null=True)
 
     def __str__(self):
         return self.title
