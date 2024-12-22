@@ -1,10 +1,8 @@
 """Views for Tasks"""
-from django.shortcuts import render, get_object_or_404
-from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
 # Create your views here.
 from django.db.models import F
-from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -43,40 +41,52 @@ class SubTaskViewSet(viewsets.ModelViewSet):
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    """View for manage Task API"""
+    """View for managing Task API"""
     serializer_class = serializers.TaskDetailSerializer
     queryset = Task.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Retrive Task for authenticated user"""
-        return self.queryset.filter(user=self.request.user).order_by('-id')
-
+        """Retrieve Task for authenticated user"""
+        return self.queryset.filter(user=self.request.user).order_by('-position')
 
     def get_serializer_class(self):
         """Return serializer class for request"""
         if self.action == 'list':
             return serializers.TaskSerializer
-
         return self.serializer_class
 
-    
     def perform_create(self, serializer):
-        """Create new Task"""
-        serializer.save(user=self.request.user, position=0)  # Postavljamo poziciju novog zadatka na 0
-        # Ažuriramo pozicije ostalih zadataka
-        Task.objects.exclude(id=serializer.instance.id).update(position=F('position') + 1)
+        """Create new Task with automatic position"""
+        task_count = Task.objects.count()  
         serializer.save(user=self.request.user)
 
-    
     def perform_destroy(self, instance):
         """Delete Task and adjust positions of other tasks"""
         position = instance.position
         instance.delete()
 
-        # Move tasks below the deleted task up by one position
         Task.objects.filter(position__gt=position).update(position=F('position') - 1)
+
+    def perform_update(self, serializer):
+        """Update Task position and adjust other tasks accordingly"""
+        task = serializer.instance
+        old_position = task.position
+        new_position = serializer.validated_data['position']
+
+        if old_position != new_position:
+            if new_position < old_position:
+                Task.objects.filter(position__gte=new_position, position__lt=old_position).update(position=F('position') + 1)
+            else:
+                Task.objects.filter(position__gt=old_position, position__lte=new_position).update(position=F('position') - 1)
+
+            task.position = new_position
+            task.save()
+
+        else:
+            super().perform_update(serializer)
+
 
 
 class TagViewSet(mixins.DestroyModelMixin,

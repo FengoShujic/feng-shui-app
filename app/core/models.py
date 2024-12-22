@@ -116,14 +116,14 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
-    position = models.PositiveIntegerField(default=0)
+    position = models.BigIntegerField(blank=True, null=True)
     end_date = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.title
 
     class Meta:
-        ordering = ['position']
+        ordering = ['-position']
 
 
 class SubTask(models.Model):

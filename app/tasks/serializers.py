@@ -81,30 +81,32 @@ class SubTaskDetailSerializer(SubTaskSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     """Task Serializer"""
     tags = TagSerializer(many=True, required=False)
+
     class Meta:
         model = Task
         fields = ['id', 'title', 'tags', 'position', 'end_date']
-        read_only = ['id']
+        read_only = ['id', 'position'] 
 
-    def _get_or_create_tags(self, tags, sub_task):
-        """Geting or creating tags handler"""
+    def _get_or_create_tags(self, tags, task):
+        """Getting or creating tags handler"""
         auth_user = self.context['request'].user
         for tag in tags:
             tag_obj, created = Tag.objects.get_or_create(
                 user=auth_user,
                 **tag,
             )
-            sub_task.tags.add(tag_obj)
+            task.tags.add(tag_obj)
 
     def create(self, validated_data):
-        """Create Task"""
+        """Create Task and set its position"""
         tags = validated_data.pop('tags', [])
-        task = Task.objects.create(**validated_data)
+        task_count = Task.objects.count()
+        task = Task.objects.create(**validated_data, position=task_count + 1)
         self._get_or_create_tags(tags, task)
         return task
 
     def update(self, instance, validated_data):
-        """Update SubTask"""
+        """Update Task"""
         tags = validated_data.pop('tags', None)
         if tags is not None:
             instance.tags.clear()
