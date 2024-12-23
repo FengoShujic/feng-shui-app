@@ -13,6 +13,8 @@ from core.models import Task, SubTask, Tag, Comment
 from tasks import serializers
 from rest_framework import status
 from django.contrib.contenttypes.models import ContentType
+from tasks.serializers import TaskPositionUpdateSerializer
+from django.core.exceptions import ValidationError
 
 
 class SubTaskViewSet(viewsets.ModelViewSet):
@@ -53,9 +55,20 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Return serializer class for request"""
+        if self.action == 'update_position':
+            return TaskPositionUpdateSerializer
         if self.action == 'list':
             return serializers.TaskSerializer
         return self.serializer_class
+
+    @action(detail=True, methods=['patch'], url_path='update_position')
+    def update_position(self, request, pk=None):
+        """Update Task position only"""
+        task = self.get_object()
+        serializer = self.get_serializer(task, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         """Create new Task with automatic position"""
@@ -74,20 +87,25 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = serializer.instance
         old_position = task.position
         new_position = serializer.validated_data['position']
-
+    
+        max_position = Task.objects.filter(user=self.request.user).count()
+    
+        if new_position < 1 or new_position > max_position:
+            raise ValidationError(f"Invalid position! Select in range between 1 and {max_position}.")
+    
         if old_position != new_position:
             if new_position < old_position:
-                Task.objects.filter(position__gte=new_position, position__lt=old_position).update(position=F('position') + 1)
+                Task.objects.filter(position__gte=new_position, \
+                    position__lt=old_position).update(position=F('position') + 1)
             else:
-                Task.objects.filter(position__gt=old_position, position__lte=new_position).update(position=F('position') - 1)
+                Task.objects.filter(position__gt=old_position, \
+                    position__lte=new_position).update(position=F('position') - 1)
 
             task.position = new_position
             task.save()
-
         else:
             super().perform_update(serializer)
-
-
+        
 
 class TagViewSet(mixins.DestroyModelMixin,
                 mixins.UpdateModelMixin, 

@@ -1,6 +1,7 @@
 """
 Database models.
 """
+import uuid
 from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -55,61 +56,48 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.UUIDField()
     content_object = GenericForeignKey('content_type', 'object_id')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"Comment by {self.user.email} on {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
-
-
 class Tag(models.Model):
-    """Tasks db"""
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
+    """Tag model"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.name
 
-
 class Project(models.Model):
-    """Project db"""
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
+    """Project model"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.title
-
 
 class SubProject(models.Model):
-    """SubProject db"""
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
-    project = models.ForeignKey(Project, default=None, related_name='sub_projects', on_delete=models.CASCADE)
+    """SubProject model"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name='sub_projects', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.title
 
-
 class Task(models.Model):
-    """Tasks db"""
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
-    project = models.ForeignKey(Project, default=None, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
-    sub_project = models.ForeignKey(SubProject, default=None, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
+    """Task model"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
+    sub_project = models.ForeignKey(SubProject, blank=True, null=True, on_delete=models.CASCADE, related_name='task_set')
     title = models.CharField(max_length=255)
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -118,8 +106,9 @@ class Task(models.Model):
     comments = GenericRelation(Comment)
     position = models.BigIntegerField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    urgent = models.BooleanField(default=False, blank=True, null=True)  
-    important = models.BooleanField(default=False, blank=True, null=True)
+    urgent = models.BooleanField(default=False)  
+    important = models.BooleanField(default=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.title
@@ -127,14 +116,10 @@ class Task(models.Model):
     class Meta:
         ordering = ['-position']
 
-
 class SubTask(models.Model):
-    """Tasks db"""
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
-    parent_task = models.ForeignKey(Task, default=None, on_delete=models.CASCADE, related_name='sub_tasks')
+    """SubTask model"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    parent_task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='sub_tasks')
     title = models.CharField(max_length=255)
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -142,7 +127,7 @@ class SubTask(models.Model):
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
     end_date = models.CharField(max_length=50, blank=True, null=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.title
-

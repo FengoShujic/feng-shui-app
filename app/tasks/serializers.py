@@ -5,19 +5,22 @@ from django.contrib.contenttypes.models import ContentType
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for Comment model."""
+    
     class Meta:
         model = Comment
         fields = ['id', 'user', 'text', 'created_at', 'content_type', 'object_id']
         read_only_fields = ('id', 'user', 'created_at', 'content_type', 'object_id')
     
     def create(self, validated_data):
+        """Override create method to link comment with the content object."""
         content_object = self.context.get('content_object')
-        # Create a new comment instance
+        
         comment = Comment.objects.create(
             user=self.context['request'].user,
             text=validated_data['text'],
             content_type=ContentType.objects.get_for_model(content_object),
-            object_id=content_object.pk
+            object_id=content_object.pk  
         )
         return comment
 
@@ -84,7 +87,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'tags', 'position', 'end_date', 'urgent', 'important']
+        fields = ['id', 'title', 'project', 'sub_project', 'tags', 'position', 'end_date', 'urgent', 'important']
         read_only = ['id', 'position'] 
 
     def _get_or_create_tags(self, tags, task):
@@ -127,6 +130,11 @@ class TaskDetailSerializer(TaskSerializer):
         fields = TaskSerializer.Meta.fields + ['note', 'project', 'sub_project', 'created_at', 'updated_at', 'sub_tasks', 'comments']
 
 
+class TaskPositionUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating only task position"""
+    class Meta:
+        model = Task
+        fields = ['position']
 
 
     
