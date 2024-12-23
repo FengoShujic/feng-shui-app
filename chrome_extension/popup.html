@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Creator</title>
+    <script src="popup.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            width: 250px; /* Smanjena širina */
+            background-color: #ffffff; /* Belo pozadinsko boje za čistiji izgled */
+            color: #333;
+            border-radius: 10px; /* Zaobljene ivice na celom popupu */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Blagi senka oko popupa */
+        }
+
+        h1 {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px; /* Zaobljene ivice na dugmetu */
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+            padding: 8px;
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        /* Boje za poruku o uspehu i grešci */
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Save this text as Task</h1>
+    <button id="save-task">Save</button>
+    <div class="message" id="message"></div> <!-- Poruka o uspehu ili grešci -->
+    <p id="status"></p>
+</body>
+</html>

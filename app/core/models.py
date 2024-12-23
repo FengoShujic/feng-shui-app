@@ -104,11 +104,13 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag)
     comments = GenericRelation(Comment)
-    position = models.BigIntegerField(blank=True, null=True)
+    position = models.IntegerField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     urgent = models.BooleanField(default=False)  
     important = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
 
     def __str__(self):
         return self.title

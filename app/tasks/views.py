@@ -13,8 +13,9 @@ from core.models import Task, SubTask, Tag, Comment
 from tasks import serializers
 from rest_framework import status
 from django.contrib.contenttypes.models import ContentType
-from tasks.serializers import TaskPositionUpdateSerializer
+from tasks.serializers import TaskPositionUpdateSerializer, TaskSerializer
 from django.core.exceptions import ValidationError
+
 
 
 class SubTaskViewSet(viewsets.ModelViewSet):
@@ -50,8 +51,42 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Retrieve Task for authenticated user"""
-        return self.queryset.filter(user=self.request.user).order_by('-position')
+        """Retrieve Task for authenticated user, excluding completed tasks"""
+        queryset = self.queryset.filter(user=self.request.user)
+        # Filter out tasks that are marked as completed
+        if not self.request.GET.get('include_completed', False):
+            queryset = queryset.filter(is_completed=False)
+        return queryset.order_by('-position')
+
+    @action(detail=True, methods=['patch'], url_path='complete')
+    def complete_task(self, request, pk=None):
+        """Mark task as completed"""
+        task = self.get_object()
+
+        if task.is_completed:
+            return Response(
+                {"message": "Task is already completed."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        task.is_completed = True
+        task.save()
+
+        return Response(
+            {"message": "Task marked as completed."},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['get'], url_path='completed')
+    def completed_tasks(self, request):
+        """Retrieve only completed tasks, with sorting options"""
+        queryset = Task.objects.filter(user=self.request.user, is_completed=True)
+        sort_by = request.query_params.get('sort_by', 'created_at')
+        if sort_by not in ['created_at', 'end_date']:
+            sort_by = 'created_at'
+        queryset = queryset.order_by(sort_by)
+        serializer = TaskSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def get_serializer_class(self):
         """Return serializer class for request"""
@@ -164,6 +199,3 @@ class CommentDetailAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CommentSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
-
-    # Token 42c2f3e6ea4bbb7c2dfeefdb55ba73173f6fd966

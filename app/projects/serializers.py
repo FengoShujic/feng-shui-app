@@ -5,6 +5,7 @@ from tasks.serializers import TaskDetailSerializer
 
 
 
+
 class SubProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubProject
@@ -27,6 +28,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only = ['id']
 
 
+from typing import List
+from rest_framework import serializers
+
 class ProjectDetailSerializer(ProjectSerializer):
     sub_projects = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
@@ -35,12 +39,15 @@ class ProjectDetailSerializer(ProjectSerializer):
         fields = ProjectSerializer.Meta.fields + ['description', 'sub_projects', 'tasks']
 
     def get_sub_projects(self, obj):
+        """Get all subprojects for the current project."""
         sub_projects = SubProject.objects.filter(project=obj)
-        return SubProjectSerializer(sub_projects, many=True).data
+        return SubProjectSerializer(sub_projects, many=True).data if sub_projects.exists() else []
 
-    def get_tasks(self, obj):
+    def get_tasks(self, obj) -> List[dict]:
+        """Get all tasks for the current project."""
         tasks = Task.objects.filter(project=obj)
-        return TaskDetailSerializer(tasks, many=True).data
+        return TaskDetailSerializer(tasks, many=True).data if tasks.exists() else []
+
 
 
 
