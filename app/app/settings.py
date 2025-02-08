@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 import os
+import dj_database_url
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,6 +93,9 @@ DATABASES = {
     }
 }
 
+DATABASES['default'] = dj_database_url.parse(
+    "postgresql://fengshui_django_render_user:PHlZEfTn9biKPu2khr1tnQUPOAWusNl1@dpg-cujkeqd2ng1s73b87pfg-a.oregon-postgres.render.com/fengshui_django_render"
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
