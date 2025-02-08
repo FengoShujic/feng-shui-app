@@ -16,6 +16,7 @@ services:
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     environment:
+      - DATABASE_URL=${DATABASE_URL}
       - DB_HOST=db
       - DB_NAME=devdb
       - DB_USER=devuser
