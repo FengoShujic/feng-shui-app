@@ -40,4 +40,5 @@ ENV DATABASE_URL=${DATABASE_URL}
 USER django-user
 
 # Pokrećemo Gunicorn za produkciju
-CMD ["gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["/py/bin/gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000"]
+
